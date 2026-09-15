@@ -39,6 +39,9 @@ class Outcome:
 
 def run_validator(leaf_docs_dir: str, previous: dict, candidate: dict) -> None:
     """Run leaf-docs' own validator on the edit before any PR is opened."""
+    # Absolute, because node runs with leaf-docs as its working directory: a
+    # relative checkout path would otherwise be joined twice.
+    leaf_docs_dir = os.path.abspath(leaf_docs_dir)
     script = os.path.join(leaf_docs_dir, "scripts", "validate-pakrat-catalog.mjs")
     with tempfile.TemporaryDirectory() as temp:
         previous_path = os.path.join(temp, "previous.json")
