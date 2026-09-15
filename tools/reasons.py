@@ -18,7 +18,7 @@ THEME_REASONS = {
     "theme-absolute-path": "A path in the zip starts with / or a drive letter.",
     "theme-backslash-path": "A path in the zip contains a backslash. Use forward slashes only.",
     "theme-path-traversal": "A path in the zip contains a . or .. folder.",
-    "theme-hidden-file": "The zip contains a hidden file or folder, such as .DS_Store, ._ files or __MACOSX. On a Mac, remove them or zip the folder from the command line with zip -r -X.",
+    "theme-hidden-file": "The zip contains a hidden file or folder, such as .DS_Store, ._ files or __MACOSX. On a Mac, zip the folder from the command line with zip -r -X your-theme.zip your-theme -x '*.DS_Store'.",
     "theme-symlink": "The zip contains a symbolic link.",
     "theme-special-file": "The zip contains something that is not a regular file or folder.",
     "theme-duplicate-entry": "Two entries in the zip have the same name when letter case is ignored. The SD card is FAT32, where they would be one file.",

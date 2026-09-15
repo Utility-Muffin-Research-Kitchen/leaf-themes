@@ -44,8 +44,8 @@ The ones people hit most:
 - `preview.png` is exactly 960 x 720. Icons, labels and wordmarks are PNGs up to 1024 px per
   side (icons look best at 512 x 512), and wallpapers are PNG or JPEG up to 2048 px per side.
 - Only the files the guide lists. No hidden files such as `.DS_Store` or `__MACOSX`, no
-  symbolic links, and nothing that runs. On a Mac, zip from the command line with
-  `zip -r -X` to leave the hidden files out.
+  symbolic links, and nothing that runs. On a Mac, zip from the command line so the hidden
+  files stay out: `zip -r -X your-theme.zip your-theme -x '*.DS_Store'`.
 - The zip is at most 10 MiB, and at most 25 MiB once extracted.
 - Your `id` is 2 to 40 lowercase letters, digits and hyphens. It can't be the name of a theme
   that ships with Leaf (`Sample`) or of anything else in Pak Rat, and it never changes.
