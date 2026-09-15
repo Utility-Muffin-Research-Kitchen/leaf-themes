@@ -1,0 +1,201 @@
+name: Theme submission
+
+# Checks a theme submitted through the issue form, stages the canonical zip in
+# a draft release, and opens a review PR. A maintainer merging that PR is what
+# publishes it (publish.yml).
+#
+# Everything from a submission is untrusted: the issue text, the zip, every
+# file name and theme.json string. None of it is ever written into a script
+# with ${{ }}. The tools read the issue through the API and the event file,
+# values cross into steps only through env, the zip is opened by Python
+# (never shell unzip), and nothing from it runs.
+#
+# Until repository variable SUBMISSIONS_OPEN is 'true', only issues opened by
+# maintainers (admin, maintain or write on this repository) are processed.
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: Submission issue number to dry-run (runs every check, stages nothing)
+        required: true
+        type: number
+      as_github_id:
+        description: Check as this numeric GitHub user id instead of the issue author
+        required: false
+        type: string
+      as_login:
+        description: Check as this GitHub login (keeps maintainer rights only if it is a maintainer)
+        required: false
+        type: string
+
+permissions: {}
+
+env:
+  # The THEME-1 reference validator. Keep in step with publish.yml and with
+  # the pins in leaf-docs (pakrat-catalog.yml, deploy.yml).
+  LEAF_CONTRACTS_SHA: a0a2a06e2eb6e80d02daec7a02aaba58d3687ce6
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  gate:
+    # A cheap filter, so ordinary comments never start real work. The gate
+    # step then checks the comment text exactly, who wrote it, and whether
+    # submissions are open.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issues' &&
+       contains(github.event.issue.labels.*.name, 'theme-submission')) ||
+      (github.event_name == 'issue_comment' && !github.event.issue.pull_request &&
+       contains(github.event.issue.labels.*.name, 'theme-submission') &&
+       startsWith(github.event.comment.body, '/recheck'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+    outputs:
+      proceed: ${{ steps.gate.outputs.proceed }}
+      issue: ${{ steps.gate.outputs.issue }}
+      dry_run: ${{ steps.gate.outputs.dry_run }}
+      as_github_id: ${{ steps.gate.outputs.as_github_id }}
+      as_login: ${{ steps.gate.outputs.as_login }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Decide whether to run
+        id: gate
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SUBMISSIONS_OPEN: ${{ vars.SUBMISSIONS_OPEN }}
+        run: python3 tools/submission.py gate
+
+  check:
+    needs: gate
+    if: needs.gate.outputs.proceed == 'true'
+    runs-on: ubuntu-latest
+    # Read-only: this is the job that opens the submitted zip.
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    # One group per issue: a /recheck cancels a run still in progress. A dry
+    # run gets its own group so it never cancels a real one.
+    concurrency:
+      group: submission-${{ needs.gate.outputs.dry_run == 'true' && 'dry-run-' || '' }}${{ needs.gate.outputs.issue }}
+      cancel-in-progress: true
+    outputs:
+      status: ${{ steps.evaluate.outputs.status }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Checkout leaf-contracts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Utility-Muffin-Research-Kitchen/leaf-contracts
+          ref: ${{ env.LEAF_CONTRACTS_SHA }}
+          path: .leaf-contracts
+          persist-credentials: false
+      - name: Fetch the issue, the zip and the catalog
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ISSUE: ${{ needs.gate.outputs.issue }}
+          DRY_RUN: ${{ needs.gate.outputs.dry_run }}
+          AS_GITHUB_ID: ${{ needs.gate.outputs.as_github_id }}
+          AS_LOGIN: ${{ needs.gate.outputs.as_login }}
+          LEAF_CONTRACTS_DIR: ${{ github.workspace }}/.leaf-contracts
+        run: |
+          args=(--issue "$ISSUE" --workdir "$RUNNER_TEMP/submission")
+          if [ "$DRY_RUN" = "true" ]; then
+            args+=(--dry-run --as-github-id "$AS_GITHUB_ID" --as-login "$AS_LOGIN")
+          fi
+          python3 tools/submission.py fetch "${args[@]}"
+      - name: Run every check
+        id: evaluate
+        env:
+          LEAF_CONTRACTS_DIR: ${{ github.workspace }}/.leaf-contracts
+        run: python3 tools/submission.py evaluate --workdir "$RUNNER_TEMP/submission"
+      - name: Keep the results for the next job
+        if: needs.gate.outputs.dry_run != 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: submission
+          path: |
+            ${{ runner.temp }}/submission/result.json
+            ${{ runner.temp }}/submission/metadata.json
+            ${{ runner.temp }}/submission/*.zip
+            ${{ runner.temp }}/submission/*.png
+            !${{ runner.temp }}/submission/source.zip
+          if-no-files-found: error
+          retention-days: 3
+
+  report:
+    needs: [gate, check]
+    if: needs.gate.outputs.dry_run != 'true' && needs.check.outputs.status == 'fail'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    concurrency:
+      group: submission-${{ needs.gate.outputs.issue }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Download the results
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: submission
+          path: ${{ runner.temp }}/submission
+      - name: Comment and label
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 tools/submission.py report --workdir "$RUNNER_TEMP/submission"
+
+  stage:
+    needs: [gate, check]
+    if: needs.gate.outputs.dry_run != 'true' && needs.check.outputs.status == 'pass'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # draft release, review branch, previews branch
+      issues: write
+      pull-requests: write
+    concurrency:
+      group: submission-${{ needs.gate.outputs.issue }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Checkout leaf-contracts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Utility-Muffin-Research-Kitchen/leaf-contracts
+          ref: ${{ env.LEAF_CONTRACTS_SHA }}
+          path: .leaf-contracts
+          persist-credentials: false
+      - name: Download the results
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: submission
+          path: ${{ runner.temp }}/submission
+      # The draft release holds the zip and preview that will be published.
+      # Its assets are visible to maintainers only, so the preview reviewers
+      # see in the PR comes from the orphan `previews` branch instead; see
+      # _push_preview in tools/submission.py for why.
+      - name: Stage and open the review PR
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          LEAF_CONTRACTS_DIR: ${{ github.workspace }}/.leaf-contracts
+        run: python3 tools/submission.py stage --workdir "$RUNNER_TEMP/submission"

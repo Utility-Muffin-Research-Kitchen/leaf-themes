@@ -3,3 +3,6 @@ contact_links:
   - name: Leaf documentation
     url: https://leaf.game
     about: Guides for using Leaf and making your own themes.
+  - name: Report a theme or ask for a takedown
+    url: https://discord.gg/q5F7cZ7KRp
+    about: Tell a maintainer on the Leaf Discord. The theme is withdrawn first and discussed after.
