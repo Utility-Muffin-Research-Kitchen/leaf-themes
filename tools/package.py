@@ -38,6 +38,9 @@ class Inspection:
     reasons: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     manifest: dict | None = None       # set when theme.json could be read
+    # slug -> the zip entries it is about, for reasons and warnings that name
+    # one. Entry names come from the submission: render them with code().
+    where: dict[str, list[str]] = field(default_factory=dict)
 
 
 def _read_manifest(path: str):
@@ -59,8 +62,13 @@ def _read_manifest(path: str):
 def inspect(path: str) -> Inspection:
     """Run the reference validator; read theme.json when that is still safe."""
     tm = theme_model()
-    reasons, warnings = tm.validate_archive(path)
+    findings, warning_findings = tm.validate_archive_findings(path)
+    reasons = sorted({slug for slug, _ in findings})
+    warnings = sorted({slug for slug, _ in warning_findings})
     result = Inspection(list(reasons), list(warnings))
+    for slug, entry in findings + warning_findings:
+        if entry is not None:
+            result.where.setdefault(slug, []).append(entry)
     if not set(reasons) & _UNREADABLE:
         try:
             result.manifest = _read_manifest(path)

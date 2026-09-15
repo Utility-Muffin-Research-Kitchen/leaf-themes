@@ -40,12 +40,27 @@ def marker_issue(body) -> int | None:
     return int(match.group(1)) if match else None
 
 
-def _warning_lines(warnings) -> list[str]:
+FILES_SHOWN = 5
+
+
+def _files(where, slug) -> str:
+    """ " Files: `a`, `b`" for the zip entries a finding names, or ""."""
+    entries = list(dict.fromkeys((where or {}).get(slug) or []))
+    if not entries:
+        return ""
+    shown = ", ".join(code(entry, limit=120) for entry in entries[:FILES_SHOWN])
+    more = len(entries) - FILES_SHOWN
+    if more > 0:
+        shown += f" and {more} more"
+    return f" {'File' if len(entries) == 1 else 'Files'}: {shown}"
+
+
+def _warning_lines(warnings, where=None) -> list[str]:
     if not warnings:
         return []
     lines = ["", "### Warnings", "",
              "These do not block the submission, but you may want to fix them.", ""]
-    lines += [f"- `{slug}`: {reason_text.explain(slug)}" for slug in warnings]
+    lines += [f"- `{slug}`: {reason_text.explain(slug)}{_files(where, slug)}" for slug in warnings]
     return lines
 
 
@@ -64,8 +79,9 @@ def failure_comment(result: dict) -> str:
              "this issue and attach the new zip in the **Theme zip** field. A maintainer "
              "will comment `/recheck` to run the checks again.", "",
              "| Check | What to fix |", "| --- | --- |"]
-    lines += [f"| `{slug}` | {reason_text.explain(slug)} |" for slug in problems]
-    lines += _warning_lines(result.get("warnings"))
+    where = result.get("where")
+    lines += [f"| `{slug}` | {reason_text.explain(slug)}{_files(where, slug)} |" for slug in problems]
+    lines += _warning_lines(result.get("warnings"), where)
     theme = result.get("theme")
     if theme:
         lines += ["", f"<sub>Checked {code(theme.get('id'))} version "
@@ -82,7 +98,7 @@ def success_comment(result: dict, pr_url: str, pr_number: int, repository: str) 
              "closes.", "",
              "If you need to change something before then, edit this issue and attach the "
              "new zip. A maintainer will comment `/recheck`."]
-    lines += _warning_lines(result.get("warnings"))
+    lines += _warning_lines(result.get("warnings"), result.get("where"))
     return "\n".join(lines) + "\n"
 
 
@@ -100,8 +116,9 @@ def dry_run_summary(result: dict, submitter: dict, maintainer: bool) -> str:
         lines.append("")
     if result["reasons"]:
         lines += ["| Check | Explanation |", "| --- | --- |"]
-        lines += [f"| `{slug}` | {reason_text.explain(slug)} |" for slug in result["reasons"]]
-    lines += _warning_lines(result.get("warnings"))
+        lines += [f"| `{slug}` | {reason_text.explain(slug)}{_files(result.get('where'), slug)} |"
+                  for slug in result["reasons"]]
+    lines += _warning_lines(result.get("warnings"), result.get("where"))
     return "\n".join(lines) + "\n"
 
 

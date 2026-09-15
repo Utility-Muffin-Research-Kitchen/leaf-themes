@@ -276,7 +276,9 @@ def evaluate(workdir: str, repo_root: str = REPO_ROOT,
 
     reasons: list[str] = []
     warnings: list[str] = []
-    result = {"status": "fail", "reasons": reasons, "warnings": warnings, "theme": None,
+    where: dict[str, list[str]] = {}
+    result = {"status": "fail", "reasons": reasons, "warnings": warnings, "where": where,
+              "theme": None,
               "new_id": False, "maintainer_override": False, "previous_version": None,
               "withdrawn": False, "issue": issue["number"]}
 
@@ -293,6 +295,7 @@ def evaluate(workdir: str, repo_root: str = REPO_ROOT,
         inspection = package.inspect(source)
         reasons.extend(inspection.reasons)
         warnings.extend(inspection.warnings)
+        where.update(inspection.where)
         manifest = inspection.manifest
 
     if isinstance(manifest, dict) and isinstance(manifest.get("id"), str) \
