@@ -113,11 +113,12 @@ point somewhere else.
 Before the first run, the repository needs:
 
 - Labels `theme-submission`, `needs-changes` and `ready-for-review`.
-- **Settings > Actions > General > Workflow permissions:** allow GitHub Actions to create
-  pull requests.
-- Variable `LEAF_DOCS_APP_ID` and secret `LEAF_DOCS_APP_PRIVATE_KEY`, for the GitHub App
-  installed on `leaf-docs` (contents and pull requests read and write, checks and statuses
-  read).
+- Variable `LEAF_THEMES_BOT_APP_ID` and secret `LEAF_THEMES_BOT_PRIVATE_KEY`, for the Leaf
+  Themes Bot app installed on this repository only (pull requests read and write, contents
+  read). It opens review pull requests, so workflow tokens never need to.
+- Variable `LEAF_DOCS_APP_ID` and secret `LEAF_DOCS_APP_PRIVATE_KEY`, for the Leaf Themes
+  Publisher app installed on `leaf-docs` only (contents and pull requests read and write,
+  checks and statuses read). Only the publish and withdraw workflows use it.
 - Secret `DISCORD_THEMES_WEBHOOK`, optional: new and updated themes are announced there.
 - Variable `SUBMISSIONS_OPEN` set to `true` when submissions open. Until then, only issues
   opened by maintainers are processed.

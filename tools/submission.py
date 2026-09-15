@@ -89,6 +89,13 @@ def _github():
     return github.from_env()
 
 
+def _review_pr_client():
+    import github
+    if not os.environ.get("REVIEW_PR_TOKEN"):
+        raise SystemExit("REVIEW_PR_TOKEN is not set; the Leaf Themes Bot token opens review PRs")
+    return github.from_env(token_env="REVIEW_PR_TOKEN")
+
+
 def _labels(issue: dict) -> set[str]:
     return {label.get("name") for label in issue.get("labels", []) if isinstance(label, dict)}
 
@@ -530,11 +537,15 @@ def cmd_stage(args) -> int:
     issue_url = f"https://github.com/{gh.repository}/issues/{number}"
     body = report.review_pr_body(result, record, issue_url, preview_url, release["tag_name"])
     title = f"Theme: {record['id']} {record['version']}"
+    # The review PR is opened by the Leaf Themes Bot app, installed on this
+    # repository only, so the org never has to let workflow tokens create
+    # pull requests. Its key never reaches leaf-docs.
+    bot = _review_pr_client()
     existing = gh.pulls("open", head_branch=branch)
     if existing:
-        pr = gh.update_pull(existing[0]["number"], {"title": title, "body": body})
+        pr = bot.update_pull(existing[0]["number"], {"title": title, "body": body})
     else:
-        pr = gh.create_pull(title, branch, DEFAULT_BRANCH, body)
+        pr = bot.create_pull(title, branch, DEFAULT_BRANCH, body)
     _cleanup_superseded(gh, number, branch)
 
     _post_once(gh, number, report.success_comment(result, pr["html_url"], pr["number"],

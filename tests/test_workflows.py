@@ -40,6 +40,22 @@ class WorkflowTest(unittest.TestCase):
         names = [os.path.basename(p) for p in WORKFLOWS]
         self.assertEqual(names, ["publish.yml", "submission.yml", "takedown.yml", "tests.yml"])
 
+    def test_app_keys_stay_in_their_workflows(self):
+        # The key that can write leaf-docs never reaches the workflow that
+        # issues from anyone start, and the review bot key stays out of the
+        # workflows that publish.
+        where = {
+            "LEAF_DOCS_APP_PRIVATE_KEY": {"publish.yml", "takedown.yml"},
+            "LEAF_THEMES_BOT_PRIVATE_KEY": {"submission.yml"},
+        }
+        for secret, allowed in where.items():
+            found = set()
+            for path in WORKFLOWS:
+                with open(path) as handle:
+                    if secret in handle.read():
+                        found.add(os.path.basename(path))
+            self.assertEqual(found, allowed, secret)
+
     def test_no_expressions_in_scripts(self):
         for path in WORKFLOWS:
             with open(path) as handle:
