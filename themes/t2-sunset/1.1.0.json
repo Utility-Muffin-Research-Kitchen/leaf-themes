@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "id": "t2-sunset",
+  "name": "T2 Sunset",
+  "author": "Leaf Test",
+  "version": "1.1.0",
+  "min_leaf_version": "0.12.0",
+  "license": "CC0-1.0",
+  "summary": "testing update to theme",
+  "description": "T2 update target: teal accents, icons read SUN 1.1, wallpaper says v1.1.0. Drops coverflow/icons/PSP.png and adds a GBC wordmark.",
+  "artifact": {
+    "name": "t2-sunset-1.1.0.zip",
+    "url": "https://github.com/Utility-Muffin-Research-Kitchen/leaf-themes/releases/download/t2-sunset-v1.1.0/t2-sunset-1.1.0.zip",
+    "size": 1325271,
+    "installed_size": 1363792,
+    "sha256": "90edb6d50b67ac3a5a2d25cafb6f423dc381842c7bfe89e9e75eee4fede1d39b"
+  },
+  "preview": {
+    "name": "t2-sunset-1.1.0.preview.png",
+    "url": "https://github.com/Utility-Muffin-Research-Kitchen/leaf-themes/releases/download/t2-sunset-v1.1.0/t2-sunset-1.1.0.preview.png",
+    "size": 102713,
+    "sha256": "c8e5e61ab6b857d889e889539d918859b7148208347068a0f85f9a9dd9259557"
+  },
+  "owner": {
+    "github_id": 735251,
+    "login": "ericreinsmidt"
+  },
+  "submitted_by": {
+    "github_id": 735251,
+    "login": "ericreinsmidt"
+  },
+  "submission": {
+    "issue": 6,
+    "source_sha256": "896a59c87397679a600137c3916bfd7ccc9d6c7f698803b63455d6f814435a8b",
+    "source_size": 1325271
+  }
+}
