@@ -160,6 +160,21 @@ class LeafDocsValidatorTest(unittest.TestCase):
                                   capture_output=True, text=True, env=env, check=False)
         self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
 
+    def test_run_validator_with_a_relative_checkout(self):
+        # publish.yml passes `.leaf-docs`, relative to the workspace. This goes
+        # through leafdocs.run_validator itself, the way the workflow does.
+        import leafdocs
+        docs = helpers.leaf_docs_dir()
+        parent, name = os.path.dirname(docs), os.path.basename(docs)
+        first, _ = catalog.add_version(self.live, record())
+        catalog.stamp(first)
+        cwd = os.getcwd()
+        try:
+            os.chdir(parent)
+            leafdocs.run_validator(name, self.live, first)
+        finally:
+            os.chdir(cwd)
+
     def test_publish_update_withdraw_update(self):
         live = self.live
         first, _ = catalog.add_version(live, record())
