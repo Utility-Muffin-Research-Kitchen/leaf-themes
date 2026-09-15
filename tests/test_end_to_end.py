@@ -94,6 +94,13 @@ class EvaluateTest(unittest.TestCase):
                                              "theme-hidden-file", "theme-image-dimensions"])
         comment = report.failure_comment(result)
         self.assertEqual(comment.count("| `"), 4)
+        # Each file-level problem names the entry to fix.
+        self.assertEqual(result["where"]["theme-image-dimensions"], ["neon-nights/preview.png"])
+        self.assertEqual(result["where"]["theme-hidden-file"],
+                         ["neon-nights/__MACOSX/", "neon-nights/__MACOSX/x"])
+        self.assertIn("File: `neon-nights/preview.png`", comment)
+        self.assertIn("Files: `neon-nights/__MACOSX/`, `neon-nights/__MACOSX/x`", comment)
+        self.assertNotIn("File:", comment.split("submission-confirmations")[1].split("\n")[0])
         self.assertFalse(os.path.exists(os.path.join(work.path, "metadata.json")))
 
         files = helpers.theme_files(license="CC0-1.0")
@@ -230,3 +237,25 @@ class FetchTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FileListTest(unittest.TestCase):
+    """The file names in a failure comment come from the zip: untrusted text."""
+
+    def test_names_render_inert_and_capped(self):
+        hostile = "t/grid/icons/`@everyone|<b>x</b>\n[link](https://evil.invalid).png"
+        where = {"theme-image-dimensions": [hostile] + [f"t/grid/icons/{n}.png" for n in range(7)]}
+        result = {"reasons": ["theme-image-dimensions"], "warnings": [], "where": where,
+                  "theme": None}
+        row = [line for line in report.failure_comment(result).splitlines()
+               if line.startswith("| `theme-image-dimensions`")][0]
+        self.assertEqual(row.count(" | "), 1)          # the cell never splits
+        self.assertNotIn("\n", row)
+        self.assertNotIn("`@everyone", row)            # backtick replaced, stays in code
+        self.assertIn("Files: ", row)
+        self.assertIn("and 3 more", row)
+
+    def test_no_files_for_archive_level_rules(self):
+        result = {"reasons": ["theme-missing-preview"], "warnings": ["theme-no-art"],
+                  "where": {}, "theme": None}
+        self.assertNotIn("File", report.failure_comment(result))
