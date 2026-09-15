@@ -43,7 +43,7 @@ body:
     id: summary
     attributes:
       label: Summary
-      description: One line, up to 100 characters, shown under the theme name in Pak Rat.
+      description: One line, up to 100 characters, shown in the Pak Rat theme list.
       placeholder: Pink and cyan on black.
     validations:
       required: true
