@@ -175,7 +175,7 @@ def cmd_gate(args) -> int:
 
     author = (issue.get("user") or {}).get("login")
     if not submissions_open and not _is_maintainer(gh, author):
-        # Submissions are not open yet: stay silent on outside issues.
+        # Submissions are closed: stay silent on outside issues.
         return stop("submissions are not open (SUBMISSIONS_OPEN is not true)")
     outputs.update(proceed="true", issue=str(number))
     _set_outputs(**outputs)

@@ -2,14 +2,14 @@
 
 Community themes for [Leaf](https://leaf.game), installable from Pak Rat on the device.
 
-**Submissions are not open yet.** This repository is being set up. When it opens, you will
-submit a theme by filling in an issue form and attaching a zip, with no git needed. Themes
-are reviewed before anything is published to Pak Rat.
+Submit a theme by filling in an issue form and attaching a zip, with no git needed. Themes
+are reviewed before anything is published to Pak Rat. Every published theme is in the
+[Theme gallery](https://leaf.game/themes/).
 
-Until then, you can make a theme for your own device by following the
-[themes guide](https://leaf.game/guide/themes/).
+To make a theme, follow the [themes guide](https://leaf.game/guide/themes/). For the full
+walkthrough of submitting, see [Submit a theme](https://leaf.game/guide/submit-a-theme/).
 
-## How submitting will work
+## How to submit
 
 1. Build your theme and zip it: one folder, named after your theme's `id`, holding
    `theme.json`, `preview.png` and your art.
@@ -120,5 +120,5 @@ Before the first run, the repository needs:
   Publisher app installed on `leaf-docs` only (contents and pull requests read and write,
   checks and statuses read). Only the publish and withdraw workflows use it.
 - Secret `DISCORD_THEMES_WEBHOOK`, optional: new and updated themes are announced there.
-- Variable `SUBMISSIONS_OPEN` set to `true` when submissions open. Until then, only issues
-  opened by maintainers are processed.
+- Variable `SUBMISSIONS_OPEN` set to `true`. Without it, only issues opened by maintainers are
+  processed, which is how to close submissions again.
