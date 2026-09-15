@@ -190,6 +190,21 @@ jobs:
         with:
           name: submission
           path: ${{ runner.temp }}/submission
+      # The Leaf Themes Bot app is installed on this repository only, with
+      # pull requests write and contents read. It opens the review PR, so the
+      # org does not have to let workflow tokens create pull requests. This
+      # workflow never sees the Leaf Themes Publisher key, the one that can
+      # write to leaf-docs.
+      - name: Get a review PR token
+        id: bot
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ vars.LEAF_THEMES_BOT_APP_ID }}
+          private-key: ${{ secrets.LEAF_THEMES_BOT_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: leaf-themes
+          permission-contents: read
+          permission-pull-requests: write
       # The draft release holds the zip and preview that will be published.
       # Its assets are visible to maintainers only, so the preview reviewers
       # see in the PR comes from the orphan `previews` branch instead; see
@@ -197,5 +212,6 @@ jobs:
       - name: Stage and open the review PR
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          REVIEW_PR_TOKEN: ${{ steps.bot.outputs.token }}
           LEAF_CONTRACTS_DIR: ${{ github.workspace }}/.leaf-contracts
         run: python3 tools/submission.py stage --workdir "$RUNNER_TEMP/submission"
