@@ -1,0 +1,65 @@
+name: Withdraw theme
+
+# Maintainer only. Opens a leaf-docs PR setting `withdrawn: true` on a theme,
+# waits for its `validate` check, and merges it. Installed copies keep
+# working; Pak Rat stops offering the theme. Release files are left in place:
+# the catalog validator still checks every published version's artifact.
+#
+# The reason is recorded in the leaf-docs PR body and its squash commit
+# message, next to the change itself, rather than committed to this
+# repository's main (which would bypass review and trigger publish.yml).
+
+on:
+  workflow_dispatch:
+    inputs:
+      id:
+        description: Theme id to withdraw
+        required: true
+        type: string
+      reason:
+        description: Why (recorded in the leaf-docs PR and commit)
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  withdraw:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read         # also lets the tool read the actor's permission
+    concurrency:
+      group: takedown-${{ inputs.id }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Get a leaf-docs token
+        id: app
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ vars.LEAF_DOCS_APP_ID }}
+          private-key: ${{ secrets.LEAF_DOCS_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: leaf-docs
+          permission-contents: write
+          permission-pull-requests: write
+          permission-checks: read
+          permission-statuses: read
+      - name: Checkout leaf-docs (for its catalog validator)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Utility-Muffin-Research-Kitchen/leaf-docs
+          path: .leaf-docs
+          token: ${{ steps.app.outputs.token }}
+          persist-credentials: false
+      - name: Withdraw through a leaf-docs PR
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          LEAF_DOCS_TOKEN: ${{ steps.app.outputs.token }}
+          THEME_ID: ${{ inputs.id }}
+          REASON: ${{ inputs.reason }}
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: python3 tools/takedown.py --theme-id "$THEME_ID" --reason "$REASON" --leaf-docs-dir .leaf-docs

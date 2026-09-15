@@ -1,0 +1,61 @@
+name: Submit a theme
+description: Submit a new Leaf theme, or a new version of a theme you already published.
+title: "Theme submission"
+labels: ["theme-submission"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Attach your theme as a zip. The name, id, author and version all come from the
+        `theme.json` inside it, so there is nothing else to type about the theme itself.
+
+        Before you submit, read the [theme rules](https://github.com/Utility-Muffin-Research-Kitchen/leaf-themes#rules)
+        and check your theme against the [themes guide](https://leaf.game/guide/themes/).
+        A bot checks your zip within a few minutes and comments here with the result.
+
+        To update a theme you already published, open a new submission with a higher
+        `version` in `theme.json`, from the same GitHub account.
+
+  # The labels below are read by tools/form.py. Keep them in step.
+  - type: upload
+    id: theme_zip
+    attributes:
+      label: Theme zip
+      description: One zip, at most 10 MiB, holding a single folder named after your theme id.
+    validations:
+      required: true
+      accept: ".zip"
+
+  - type: dropdown
+    id: license
+    attributes:
+      label: License
+      description: The license people get your theme under. It must match `license` in your `theme.json`.
+      options:
+        - CC BY 4.0
+        - CC BY-SA 4.0
+        - CC0
+        - All rights reserved, redistribution permitted
+    validations:
+      required: true
+
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: One line, up to 100 characters, shown under the theme name in Pak Rat.
+      placeholder: Pink and cyan on black.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: I made this theme, or I have the right to share every image in it.
+          required: true
+        - label: I agree that it may be redistributed under the license I chose.
+          required: true
+        - label: I read the theme rules in the README.
+          required: true

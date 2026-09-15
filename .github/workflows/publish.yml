@@ -1,0 +1,120 @@
+name: Publish theme
+
+# Runs when a maintainer merges a review PR, which adds
+# themes/<id>/<version>.json to main. For each added file:
+#   1. release: check the staged draft still matches the reviewed sha256 and
+#      sizes, publish the immutable release <id>-v<version>, delete the draft.
+#   2. catalog: open a leaf-docs PR adding the version to the Pak Rat catalog,
+#      wait for its `validate` check, merge it, then comment on and close the
+#      submission issue, and announce the theme in Discord.
+# Every step checks what already exists, so re-running a failed run (or
+# dispatching with a metadata path) finishes the job without duplicating it.
+#
+# There is deliberately no concurrency group: GitHub cancels a pending run
+# when a newer one joins a group, which would silently drop a publish. Catalog
+# PRs are instead rebuilt on the current leaf-docs main when a merge is
+# refused.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "themes/*/*.json"
+  workflow_dispatch:
+    inputs:
+      path:
+        description: Metadata file to publish again, themes/<id>/<version>.json
+        required: true
+        type: string
+
+permissions: {}
+
+env:
+  LEAF_CONTRACTS_SHA: a0a2a06e2eb6e80d02daec7a02aaba58d3687ce6
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # releases
+    outputs:
+      paths: ${{ steps.added.outputs.paths }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Checkout leaf-contracts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Utility-Muffin-Research-Kitchen/leaf-contracts
+          ref: ${{ env.LEAF_CONTRACTS_SHA }}
+          path: .leaf-contracts
+          persist-credentials: false
+      - name: Find the versions to publish
+        id: added
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+          INPUT_PATH: ${{ inputs.path }}
+        run: python3 tools/publish.py added --before "$BEFORE" --after "$AFTER" --path "$INPUT_PATH"
+      - name: Publish the releases
+        if: steps.added.outputs.paths != '[]'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PATHS: ${{ steps.added.outputs.paths }}
+          TARGET: ${{ github.sha }}
+          LEAF_CONTRACTS_DIR: ${{ github.workspace }}/.leaf-contracts
+        run: python3 tools/publish.py release --paths "$PATHS" --target "$TARGET"
+
+  catalog:
+    needs: release
+    if: needs.release.outputs.paths != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write          # comment on and close the submission issue
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # A GitHub App installed on leaf-docs only. Its token is the one thing in
+      # this repository that can write to leaf-docs.
+      - name: Get a leaf-docs token
+        id: app
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ vars.LEAF_DOCS_APP_ID }}
+          private-key: ${{ secrets.LEAF_DOCS_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: leaf-docs
+          permission-contents: write
+          permission-pull-requests: write
+          permission-checks: read
+          permission-statuses: read
+      - name: Checkout leaf-docs (for its catalog validator)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Utility-Muffin-Research-Kitchen/leaf-docs
+          path: .leaf-docs
+          token: ${{ steps.app.outputs.token }}
+          persist-credentials: false
+      - name: Add to the Pak Rat catalog
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          LEAF_DOCS_TOKEN: ${{ steps.app.outputs.token }}
+          PATHS: ${{ needs.release.outputs.paths }}
+          TARGET: ${{ github.sha }}
+        run: |
+          python3 tools/publish.py catalog --paths "$PATHS" --target "$TARGET" \
+            --leaf-docs-dir .leaf-docs --announce-out "$RUNNER_TEMP/announce.json"
+      # Last, and only for versions whose catalog PR merged in this run. Runs
+      # even if another version in the same push failed; never fails itself.
+      - name: Announce in Discord
+        if: ${{ !cancelled() }}
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_THEMES_WEBHOOK }}
+        run: python3 tools/discord.py --announcements "$RUNNER_TEMP/announce.json"

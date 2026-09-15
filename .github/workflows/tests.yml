@@ -1,0 +1,49 @@
+name: Tests
+
+# Runs the submission tools' tests on every change to them. The tests import
+# the THEME-1 reference validator from leaf-contracts and run leaf-docs' own
+# catalog validator, so both are checked out next to this repository.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "themes/**"
+      - "owners.json"
+
+permissions: {}
+
+env:
+  # Keep in step with submission.yml and publish.yml.
+  LEAF_CONTRACTS_SHA: a0a2a06e2eb6e80d02daec7a02aaba58d3687ce6
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  unittest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Checkout leaf-contracts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Utility-Muffin-Research-Kitchen/leaf-contracts
+          ref: ${{ env.LEAF_CONTRACTS_SHA }}
+          path: .leaf-contracts
+          persist-credentials: false
+      - name: Checkout leaf-docs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Utility-Muffin-Research-Kitchen/leaf-docs
+          path: .leaf-docs
+          persist-credentials: false
+      - name: Run the tests
+        env:
+          LEAF_CONTRACTS_DIR: ${{ github.workspace }}/.leaf-contracts
+          LEAF_DOCS_DIR: ${{ github.workspace }}/.leaf-docs
+        run: python3 -m unittest discover -s tests -v
