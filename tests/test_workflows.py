@@ -38,7 +38,7 @@ def run_blocks(text: str):
 class WorkflowTest(unittest.TestCase):
     def test_found(self):
         names = [os.path.basename(p) for p in WORKFLOWS]
-        self.assertEqual(names, ["publish.yml", "submission.yml", "takedown.yml"])
+        self.assertEqual(names, ["publish.yml", "submission.yml", "takedown.yml", "tests.yml"])
 
     def test_no_expressions_in_scripts(self):
         for path in WORKFLOWS:
