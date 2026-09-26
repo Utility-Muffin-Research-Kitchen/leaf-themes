@@ -30,10 +30,11 @@ body:
     id: license
     attributes:
       label: License
-      description: The license people get your theme under. It must match `license` in your `theme.json`.
+      description: The license people get your theme under. It must match `license` in your `theme.json`. If the actual license is missing, ask a maintainer before submitting.
       options:
         - CC BY 4.0
         - CC BY-SA 4.0
+        - CC BY-NC-SA 2.0
         - CC0
         - All rights reserved, redistribution permitted
     validations:
