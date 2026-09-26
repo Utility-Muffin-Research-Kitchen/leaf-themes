@@ -42,7 +42,7 @@ THEME_REASONS = {
     "theme-author-invalid": "The author in theme.json must be 1 to 60 characters with no control characters.",
     "theme-version-invalid": "The version in theme.json must look like 1.0.0, with no leading zeros.",
     "theme-min-leaf-version": "min_leaf_version in theme.json must be a version like 0.12.0, and at least 0.12.0.",
-    "theme-unknown-license": "The license in theme.json must be one of CC-BY-4.0, CC-BY-SA-4.0, CC0-1.0 or redistribution-permitted.",
+    "theme-unknown-license": "The license in theme.json must be one of CC-BY-4.0, CC-BY-SA-4.0, CC-BY-NC-SA-2.0, CC0-1.0 or redistribution-permitted.",
     "theme-description-invalid": "The description in theme.json must be text of at most 300 characters.",
     "theme-grid-invalid": "grid in theme.json needs both cols (1 to 8) and rows (1 to 6) as whole numbers.",
     "theme-color-invalid": "A color in theme.json is not #RRGGBB or #RRGGBBAA.",
