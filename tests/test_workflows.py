@@ -89,7 +89,7 @@ class WorkflowTest(unittest.TestCase):
         for path in WORKFLOWS:
             with open(path) as handle:
                 pins.update(re.findall(r"LEAF_CONTRACTS_SHA: ([0-9a-f]{40})", handle.read()))
-        self.assertEqual(pins, {"b3ec75f417d5ce52fdf9b9cd8698e15188e53069"})
+        self.assertEqual(pins, {"dd7ff0abd70dc658b4931e6f4d72c3dc6e7b4a36"})
         docs = os.path.join(helpers.leaf_docs_dir(), ".github", "workflows",
                             "pakrat-catalog.yml")
         if os.path.exists(docs):

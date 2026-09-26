@@ -16,7 +16,7 @@ permissions: {}
 
 env:
   # Keep in step with submission.yml and publish.yml.
-  LEAF_CONTRACTS_SHA: b3ec75f417d5ce52fdf9b9cd8698e15188e53069
+  LEAF_CONTRACTS_SHA: dd7ff0abd70dc658b4931e6f4d72c3dc6e7b4a36
   PYTHONDONTWRITEBYTECODE: "1"
 
 jobs:
