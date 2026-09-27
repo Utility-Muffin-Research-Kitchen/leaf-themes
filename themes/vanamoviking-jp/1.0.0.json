@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "id": "vanamoviking-jp",
+  "name": "VanamoViking JP",
+  "author": "TSOLfan",
+  "version": "1.0.0",
+  "min_leaf_version": "0.12.0",
+  "license": "CC-BY-NC-SA-2.0",
+  "summary": "Systems front and center, JP Region.",
+  "description": "Systems front and center, JP Region.\n\nSystem photos courtesey of Evan Amos' Vanamo Online Game Museum, PC photos courtsey of viking's COLORFUL MEDIA SET, logos courtsey of Anthony Caccese's Art Book Next (ES-DE Version).",
+  "artifact": {
+    "name": "vanamoviking-jp-1.0.0.zip",
+    "url": "https://github.com/Utility-Muffin-Research-Kitchen/leaf-themes/releases/download/vanamoviking-jp-v1.0.0/vanamoviking-jp-1.0.0.zip",
+    "size": 5914439,
+    "installed_size": 5980157,
+    "sha256": "92f16ac4295127be7dc5d3ff6c1a0d0909f7d7065c8b04887e036e3fc1eb461e"
+  },
+  "preview": {
+    "name": "vanamoviking-jp-1.0.0.preview.png",
+    "url": "https://github.com/Utility-Muffin-Research-Kitchen/leaf-themes/releases/download/vanamoviking-jp-v1.0.0/vanamoviking-jp-1.0.0.preview.png",
+    "size": 272694,
+    "sha256": "cf9f6309e543e929ecc5b263384d577fcd54357f69f8b07810d9142bf34d8445"
+  },
+  "owner": {
+    "github_id": 49134456,
+    "login": "tsolfan"
+  },
+  "submitted_by": {
+    "github_id": 49134456,
+    "login": "tsolfan"
+  },
+  "submission": {
+    "issue": 20,
+    "source_sha256": "92f16ac4295127be7dc5d3ff6c1a0d0909f7d7065c8b04887e036e3fc1eb461e",
+    "source_size": 5914439
+  }
+}
