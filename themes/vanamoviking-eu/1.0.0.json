@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "id": "vanamoviking-eu",
+  "name": "VanamoViking EU",
+  "author": "TSOLfan",
+  "version": "1.0.0",
+  "min_leaf_version": "0.12.0",
+  "license": "CC-BY-NC-SA-2.0",
+  "summary": "Systems front and center, EU Region.",
+  "description": "Systems front and center, EU Region.\n\nSystem photos courtesey of Evan Amos' Vanamo Online Game Museum, PC photos courtsey of viking's COLORFUL MEDIA SET, logos courtsey of Anthony Caccese's Art Book Next (ES-DE Version).",
+  "artifact": {
+    "name": "vanamoviking-eu-1.0.0.zip",
+    "url": "https://github.com/Utility-Muffin-Research-Kitchen/leaf-themes/releases/download/vanamoviking-eu-v1.0.0/vanamoviking-eu-1.0.0.zip",
+    "size": 5976165,
+    "installed_size": 6042396,
+    "sha256": "339df3c38491dbf6105661ed395158473582fdbfc12befae96bf2024ce975a9c"
+  },
+  "preview": {
+    "name": "vanamoviking-eu-1.0.0.preview.png",
+    "url": "https://github.com/Utility-Muffin-Research-Kitchen/leaf-themes/releases/download/vanamoviking-eu-v1.0.0/vanamoviking-eu-1.0.0.preview.png",
+    "size": 281374,
+    "sha256": "bc9567212b44d7eb50f6703d009dd9c58e07e20526bf5197594ebe67c3105f99"
+  },
+  "owner": {
+    "github_id": 49134456,
+    "login": "tsolfan"
+  },
+  "submitted_by": {
+    "github_id": 49134456,
+    "login": "tsolfan"
+  },
+  "submission": {
+    "issue": 18,
+    "source_sha256": "339df3c38491dbf6105661ed395158473582fdbfc12befae96bf2024ce975a9c",
+    "source_size": 5976165
+  }
+}
