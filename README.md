@@ -64,6 +64,7 @@ Pick one when you submit. The form choice and `license` in `theme.json` must mat
 | CC BY 4.0 | `CC-BY-4.0` | Share and adapt, with credit to you |
 | CC BY-SA 4.0 | `CC-BY-SA-4.0` | Share and adapt, with credit, under the same license |
 | CC BY-NC-SA 2.0 | `CC-BY-NC-SA-2.0` | Share and adapt for noncommercial purposes, with credit, under the same license |
+| CC BY-NC-SA 4.0 | `CC-BY-NC-SA-4.0` | Share and adapt for noncommercial purposes, with credit, under the same license |
 | CC0 | `CC0-1.0` | Anything, no credit needed |
 | All rights reserved, redistribution permitted | `redistribution-permitted` | Download and use it through Pak Rat; you keep every other right |
 
@@ -74,7 +75,8 @@ from the list, ask a maintainer before submitting. Include the source credits an
 any required notices in `LICENSE.txt`; choosing a form option does not change the
 artwork's existing terms.
 
-Leaf 0.12.0 test builds up to beta 6 do not accept `CC-BY-NC-SA-2.0` themes.
+Leaf 0.12.0 test builds up to beta 6 do not accept `CC-BY-NC-SA-2.0` themes, and
+builds up to beta 7 do not accept `CC-BY-NC-SA-4.0` themes.
 
 ## Updates
 
