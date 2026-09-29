@@ -121,8 +121,8 @@ def problems(record, path: str | None = None) -> list[str]:
     minimum = policy.parse_version(record.get("min_leaf_version"))
     if minimum is None or minimum < (0, 12, 0):
         out.append("min_leaf_version must be at least 0.12.0")
-    if record.get("license") not in ("CC-BY-4.0", "CC-BY-SA-4.0", "CC-BY-NC-SA-2.0", "CC0-1.0",
-                                     "redistribution-permitted"):
+    if record.get("license") not in ("CC-BY-4.0", "CC-BY-SA-4.0", "CC-BY-NC-SA-2.0",
+                                     "CC-BY-NC-SA-4.0", "CC0-1.0", "redistribution-permitted"):
         out.append("license is not on the list")
     for key, name in (("artifact", zip_name(theme_id, version)),
                       ("preview", preview_name(theme_id, version))):

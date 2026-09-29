@@ -26,6 +26,7 @@ LICENSE_CHOICES = {
     "CC BY 4.0": "CC-BY-4.0",
     "CC BY-SA 4.0": "CC-BY-SA-4.0",
     "CC BY-NC-SA 2.0": "CC-BY-NC-SA-2.0",
+    "CC BY-NC-SA 4.0": "CC-BY-NC-SA-4.0",
     "CC0": "CC0-1.0",
     "All rights reserved, redistribution permitted": "redistribution-permitted",
 }

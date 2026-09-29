@@ -95,6 +95,20 @@ class EvaluateTest(unittest.TestCase):
         self.assertEqual(staged.reasons, [])
         self.assertEqual(staged.manifest["license"], "CC-BY-NC-SA-2.0")
 
+    def test_noncommercial_sharealike_4_submission(self):
+        source = helpers.theme_zip(helpers.theme_files(license="CC-BY-NC-SA-4.0"))
+        work = Workdir(self.temp.name, zip_bytes=source,
+                       body=helpers.form_body(license_label="CC BY-NC-SA 4.0"))
+        result = self.run_eval(work)
+        self.assertEqual(result["status"], "pass", result)
+        with open(os.path.join(work.path, "metadata.json")) as handle:
+            record = json.load(handle)
+        self.assertEqual(record["license"], "CC-BY-NC-SA-4.0")
+        self.assertEqual(metadata.problems(record), [])
+        staged = package.inspect(os.path.join(work.path, "neon-nights-1.0.0.zip"))
+        self.assertEqual(staged.reasons, [])
+        self.assertEqual(staged.manifest["license"], "CC-BY-NC-SA-4.0")
+
     def test_every_problem_in_one_report(self):
         files = helpers.theme_files(license="CC0-1.0")
         files["neon-nights/preview.png"] = helpers.png(100, 100)

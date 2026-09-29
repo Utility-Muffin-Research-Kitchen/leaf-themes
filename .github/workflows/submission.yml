@@ -38,7 +38,7 @@ permissions: {}
 env:
   # The THEME-1 reference validator. Keep in step with publish.yml and with
   # the pins in leaf-docs (pakrat-catalog.yml, deploy.yml).
-  LEAF_CONTRACTS_SHA: e749b0135a097819dcb7b612f97409ec6ff976d4
+  LEAF_CONTRACTS_SHA: 31c161c28313092e367679f59843c2605d2c652c
   PYTHONDONTWRITEBYTECODE: "1"
 
 jobs:
